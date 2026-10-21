@@ -3946,6 +3946,10 @@ class Generator:
         fmt = self.sql(expression, "format")
         return f"{this} (FORMAT {fmt})"
 
+    def titlephrase_sql(self, expression: exp.TitlePhrase) -> str:
+        # The title only changes the column heading in Teradata, so other dialects keep the expression
+        return self.sql(expression, "this")
+
     def _jsonobject_sql(
         self, expression: exp.JSONObject | exp.JSONObjectAgg, name: str = ""
     ) -> str:

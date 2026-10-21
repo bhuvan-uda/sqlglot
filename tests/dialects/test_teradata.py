@@ -302,6 +302,18 @@ class TestTeradata(Validator):
             "SELECT CAST(Col1 AS INT) FROM Test1",
         )
 
+    def test_title_phrase(self):
+        self.validate_identity("SELECT tablename (TITLE '') FROM db.t")
+        self.validate_identity("SELECT COALESCE(title, 'x'), F(title) FROM t")
+        self.validate_all(
+            "SELECT a (TITLE 'Total') AS b, c FROM t",
+            write={
+                "teradata": "SELECT a (TITLE 'Total') AS b, c FROM t",
+                "duckdb": "SELECT a AS b, c FROM t",
+                "snowflake": "SELECT a AS b, c FROM t",
+            },
+        )
+
     def test_time(self):
         self.validate_identity("CAST(CURRENT_TIMESTAMP(6) AS TIMESTAMP WITH TIME ZONE)")
 

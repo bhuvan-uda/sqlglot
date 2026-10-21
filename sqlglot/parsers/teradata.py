@@ -219,7 +219,7 @@ class TeradataParser(parser.Parser):
             and self._next.token_type == TokenType.L_PAREN
             and self._index + 2 < len(self._tokens)
             and self._tokens[self._index + 2].token_type == TokenType.FORMAT
-        ):
+        ) or self._is_title_phrase(self._index + 1):
             return None
 
         return super()._parse_function(
@@ -239,8 +239,26 @@ class TeradataParser(parser.Parser):
             self._match_r_paren()
 
             this = self.expression(exp.FormatPhrase(this=this, format=fmt_string))
+        elif self._is_title_phrase(self._index):
+            # `(TITLE <string>)` after an expression overrides its column heading.
+            # See https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Data-Type-Formats-and-Format-Phrases/TITLE/Usage-Notes/TITLE-Phrase-Rules
+            self._advance(2)
+            title = self._parse_string()
+            self._match_r_paren()
+
+            this = self.expression(exp.TitlePhrase(this=this, title=title))
 
         return this
+
+    def _is_title_phrase(self, index: int) -> bool:
+        # Matches `( TITLE <string>`, so that e.g. COALESCE(title, 'x') is still a function call
+        tokens = self._tokens[index : index + 3]
+        return (
+            len(tokens) == 3
+            and tokens[0].token_type == TokenType.L_PAREN
+            and tokens[1].text.upper() == "TITLE"
+            and tokens[2].token_type == TokenType.STRING
+        )
 
     def _parse_window(self, this: exp.Expr | None, alias: bool = False) -> exp.Expr | None:
         window = super()._parse_window(this, alias)

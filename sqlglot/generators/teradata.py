@@ -167,6 +167,9 @@ class TeradataGenerator(generator.Generator):
 
         return f"RANGE_N({this} BETWEEN {expressions_sql}{each_sql})"
 
+    def titlephrase_sql(self, expression: exp.TitlePhrase) -> str:
+        return f"{self.sql(expression, 'this')} (TITLE {self.sql(expression, 'title')})"
+
     def lockingstatement_sql(self, expression: exp.LockingStatement) -> str:
         """Generate SQL for LOCKING statement"""
         locking_clause = self.sql(expression, "this")

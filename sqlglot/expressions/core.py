@@ -2311,6 +2311,15 @@ class FormatPhrase(Expression):
     arg_types = {"this": True, "format": True}
 
 
+class TitlePhrase(Expression):
+    """Column heading override for an expression in Teradata, e.g. `SELECT a (TITLE 'x')`.
+
+    https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Types-and-Literals/Data-Type-Formats-and-Format-Phrases/TITLE/Usage-Notes/TITLE-Phrase-Rules
+    """
+
+    arg_types = {"this": True, "title": True}
+
+
 class Between(Expression, Predicate):
     arg_types = {"this": True, "low": True, "high": True, "symmetric": False}
 
